@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Pocket Left</title>
+    <!-- Добавляем Blockly -->
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <link href="https://unpkg.com/blockly/blockly.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: rgb(243, 214, 5);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .app-container {
+            width: 96%;
+            max-width: 400px;
+            height: 90vh;
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .screen {
+            padding: 25px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            width: 100%;
+            background: white;
+            transition: transform 0.3s ease;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 22px 25px;
+            margin-bottom: 20px;
+            background: rgb(249, 146, 28);
+            border: none;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: rgb(230, 130, 20);
+            transform: translateY(-3px);
+        }
+        
+        .btn img {
+            width: 30px;
+            height: 30px;
+            margin-right: 20px;
+        }
+        
+        .project-item {
+            padding: 18px;
+            margin-bottom: 15px;
+            background: #f8f8f8;
+            border-radius: 12px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .project-item:hover {
+            transform: translateX(5px);
+            background: #f0f0f0;
+        }
+        
+        .scene-item {
+            padding: 18px;
+            margin-bottom: 15px;
+            background: #f8f8f8;
+            border-radius: 12px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .scene-item:hover {
+            transform: translateX(5px);
+            background: #f0f0f0;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 18px;
+            margin: 15px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        .input-field:focus {
+            border-color: rgb(249, 146, 28);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .cancel-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .cancel-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .ok-btn {
+            background: rgb(249, 146, 28);
+            color: white;
+        }
+        
+        .ok-btn:hover {
+            background: rgb(230, 130, 20);
+        }
+        
+        .add-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgb(243, 214, 5);
+            border: none;
+            border-radius: 50%;
+            color: black;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .add-btn:hover {
+            transform: scale(1.1);
+            background: rgb(249, 146, 28);
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #777;
+            margin-top: 50px;
+            padding: 20px;
+        }
+        
+        .menu-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #777;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        
+        .menu-btn:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        .menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 5px 0;
+            z-index: 100;
+            min-width: 150px;
+        }
+        
+        .menu-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+        
+        .menu-option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .menu-option.delete {
+            color: #ff4444;
+        }
+        
+        .menu-option.delete:hover {
+            background-color: #ffeaea;
+        }
+        
+        /* Blockly Editor Screen */
+        #blocklyEditorScreen {
+            display: none;
+            flex-direction: column;
+        }
+        
+        .blockly-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .blockly-back-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: rgb(249, 146, 28);
+            cursor: pointer;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #blocklyContainer {
+            flex: 1;
+            width: 100%;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .blockly-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .blockly-action-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgb(249, 146, 28);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .blockly-action-btn:hover {
+            background: rgb(230, 130, 20);
+        }
+        
+        .blockly-action-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .blockly-action-btn.secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Screen states */
+        #mainScreen {
+            transform: translateY(0);
+        }
+        
+        #projectsScreen {
+            transform: translateY(100%);
+        }
+        
+        #createProjectScreen {
+            transform: translateY(100%);
+        }
+        
+        #projectScenesScreen {
+            transform: translateY(100%);
+        }
+        
+        #blocklyEditorScreen {
+            transform: translateY(100%);
+        }
+        
+        .screen.active {
+            transform: translateY(0) !important;
+            display: flex !important;
+        }
+        
+        .screen:not(.active) {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Главный экран -->
+        <div class="screen active" id="mainScreen">
+            <div class="header">
+                <img src="icon.png" class="logo" alt="Лого">
+                <h1>Pocket Left</h1>
+            </div>
+            
+            <button class="btn" id="continueBtn">
+                <img src="arrow.png" alt="Стрелка">
+                Продолжить проект
+            </button>
+            
+            <button class="btn" id="projectsBtn">
+                <img src="box.png" alt="Папка">
+                Мои проекты
+            </button>
+            
+            <button class="btn" id="telegramBtn">
+                <img src="telegram.png" alt="Телеграм">
+                Чат в Telegram
+            </button>
+            
+            <button class="btn" id="lessonsBtn">
+                <img src="leasson.png" alt="Уроки">
+                Видеоуроки
+            </button>
+        </div>
+        
+        <!-- Список проектов -->
+        <div class="screen" id="projectsScreen">
+            <div class="header">
+                <img src="back.png" class="logo" id="backFromProjects" alt="Назад">
+                <h1>Мои проекты</h1>
+            </div>
+            
+            <div id="projectsList">
+                <div class="empty-state">У вас пока нет проектов</div>
+            </div>
+            
+            <button class="add-btn" id="addProjectBtn" title="Создать проект">+</button>
+        </div>
+        
+        <!-- Создание проекта -->
+        <div class="screen" id="createProjectScreen">
+            <div class="header">
+                <img src="back.png" class="logo" id="backFromCreate" alt="Назад">
+                <h1>Новый проект</h1>
+            </div>
+            
+            <input type="text" class="input-field" id="projectNameInput" placeholder="Название проекта">
+            
+            <div class="action-buttons">
+                <button class="action-btn cancel-btn" id="cancelBtn">ОТМЕНИТЬ</button>
+                <button class="action-btn ok-btn" id="okBtn">СОЗДАТЬ</button>
+            </div>
+        </div>
+        
+        <!-- Экран сцен проекта -->
+        <div class="screen" id="projectScenesScreen">
+            <div class="header">
+                <img src="back.png" class="logo" id="backFromScenes" alt="Назад">
+                <h1 id="projectTitle">Сцены проекта</h1>
+            </div>
+            
+            <div id="scenesList">
+                <div class="empty-state">В этом проекте пока нет сцен</div>
+            </div>
+            
+            <button class="add-btn" id="addSceneBtn" title="Добавить сцену">+</button>
+        </div>
+        
+        <!-- Blockly Editor -->
+        <div class="screen" id="blocklyEditorScreen">
+            <div class="blockly-header">
+                <button class="blockly-back-btn" id="backFromBlockly">
+                    ← Назад к сценам
+                </button>
+                <h2 id="blocklySceneTitle">Редактор блоков</h2>
+            </div>
+            
+            <div id="blocklyContainer"></div>
+            
+            <div class="blockly-actions">
+                <button class="blockly-action-btn secondary" id="saveBlocksBtn">
+                    Сохранить блоки
+                </button>
+                <button class="blockly-action-btn" id="runBlocksBtn">
+                    Запустить код
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== КОНСТАНТЫ И КОНФИГУРАЦИЯ ==========
+        const STORAGE_KEYS = {
+            PROJECTS: 'pocketLeft_projects_v2',
+            SCENES: 'pocketLeft_scenes_v2',
+            LAST_PROJECT: 'pocketLeft_lastProject_v2',
+            BLOCKS: 'pocketLeft_blocks_v2'
+        };
+
+        // ========== СИНГЛТОНЫ И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+        let AppState = {
+            projects: [],
+            scenes: {},
+            blocks: {},
+            currentProject: null,
+            currentScene: null,
+            activeMenu: null
+        };
+
+        // ========== УТИЛИТЫ ==========
+        const Storage = {
+            get(key) {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : null;
+            },
+            
+            set(key, data) {
+                localStorage.setItem(key, JSON.stringify(data));
+            },
+            
+            remove(key) {
+                localStorage.removeItem(key);
+            }
+        };
+
+        const UI = {
+            showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                document.getElementById(screenId).classList.add('active');
+            },
+            
+            showMenu(content, targetElement, onClose = null) {
+                // Закрыть предыдущее меню
+                if (AppState.activeMenu) {
+                    document.body.removeChild(AppState.activeMenu);
+                }
+                
+                const menu = document.createElement('div');
+                menu.className = 'menu';
+                menu.innerHTML = content;
+                
+                // Позиционирование
+                const rect = targetElement.getBoundingClientRect();
+                menu.style.position = 'fixed';
+                menu.style.top = `${rect.bottom + window.scrollY}px`;
+                menu.style.left = `${rect.left + window.scrollX}px`;
+                
+                document.body.appendChild(menu);
+                AppState.activeMenu = menu;
+                
+                // Закрытие при клике вне меню
+                const closeHandler = (e) => {
+                    if (!menu.contains(e.target) && e.target !== targetElement) {
+                        UI.closeMenu();
+                        if (onClose) onClose();
+                    }
+                };
+                
+                setTimeout(() => {
+                    document.addEventListener('click', closeHandler);
+                }, 0);
+                
+                return menu;
+            },
+            
+            closeMenu() {
+                if (AppState.activeMenu) {
+                    document.body.removeChild(AppState.activeMenu);
+                    AppState.activeMenu = null;
+                }
+            },
+            
+            showPrompt(title, defaultValue = '') {
+                return prompt(title, defaultValue);
+            },
+            
+            showConfirm(message) {
+                return confirm(message);
+            },
+            
+            showAlert(message) {
+                alert(message);
+            }
+        };
+
+        // ========== УПРАВЛЕНИЕ ПРОЕКТАМИ ==========
+        const ProjectManager = {
+            loadProjects() {
+                AppState.projects = Storage.get(STORAGE_KEYS.PROJECTS) || [];
+                AppState.scenes = Storage.get(STORAGE_KEYS.SCENES) || {};
+                AppState.blocks = Storage.get(STORAGE_KEYS.BLOCKS) || {};
+                
+                const lastProject = Storage.get(STORAGE_KEYS.LAST_PROJECT);
+                if (lastProject && AppState.projects.some(p => p.name === lastProject)) {
+                    AppState.currentProject = lastProject;
+                }
+            },
+            
+            saveProjects() {
+                Storage.set(STORAGE_KEYS.PROJECTS, AppState.projects);
+                Storage.set(STORAGE_KEYS.SCENES, AppState.scenes);
+                Storage.set(STORAGE_KEYS.BLOCKS, AppState.blocks);
+                
+                if (AppState.currentProject) {
+                    Storage.set(STORAGE_KEYS.LAST_PROJECT, AppState.currentProject);
+                }
+            },
+            
+            createProject(name) {
+                if (!name.trim()) {
+                    UI.showAlert('Пожалуйста, введите название проекта!');
+                    return false;
+                }
+                
+                if (AppState.projects.some(p => p.name === name)) {
+                    UI.showAlert('Проект с таким именем уже существует!');
+                    return false;
+                }
+                
+                AppState.projects.push({ name: name.trim() });
+                AppState.scenes[name] = [];
+                AppState.blocks[name] = {};
+                
+                this.saveProjects();
+                return true;
+            },
+            
+            renameProject(oldName, newName) {
+                const project = AppState.projects.find(p => p.name === oldName);
+                if (!project) return false;
+                
+                project.name = newName.trim();
+                
+                // Переносим данные
+                if (AppState.scenes[oldName]) {
+                    AppState.scenes[newName] = AppState.scenes[oldName];
+                    delete AppState.scenes[oldName];
+                }
+                
+                if (AppState.blocks[oldName]) {
+                    AppState.blocks[newName] = AppState.blocks[oldName];
+                    delete AppState.blocks[oldName];
+                }
+                
+                if (AppState.currentProject === oldName) {
+                    AppState.currentProject = newName;
+                }
+                
+                this.saveProjects();
+                return true;
+            },
+            
+            duplicateProject(projectName) {
+                const project = AppState.projects.find(p => p.name === projectName);
+                if (!project) return false;
+                
+                let newName = `${projectName} (копия)`;
+                let counter = 1;
+                
+                while (AppState.projects.some(p => p.name === newName)) {
+                    newName = `${projectName} (копия ${++counter})`;
+                }
+                
+                AppState.projects.push({ name: newName });
+                
+                // Копируем данные
+                if (AppState.scenes[projectName]) {
+                    AppState.scenes[newName] = JSON.parse(JSON.stringify(AppState.scenes[projectName]));
+                }
+                
+                if (AppState.blocks[projectName]) {
+                    AppState.blocks[newName] = JSON.parse(JSON.stringify(AppState.blocks[projectName]));
+                }
+                
+                this.saveProjects();
+                return true;
+            },
+            
+            deleteProject(projectName) {
+                if (!UI.showConfirm(`Удалить проект "${projectName}" и все его данные?`)) {
+                    return false;
+                }
+                
+                AppState.projects = AppState.projects.filter(p => p.name !== projectName);
+                delete AppState.scenes[projectName];
+                delete AppState.blocks[projectName];
+                
+                if (AppState.currentProject === projectName) {
+                    AppState.currentProject = null;
+                    Storage.remove(STORAGE_KEYS.LAST_PROJECT);
+                }
+                
+                this.saveProjects();
+                return true;
+            },
+            
+            openProject(projectName) {
+                AppState.currentProject = projectName;
+                Storage.set(STORAGE_KEYS.LAST_PROJECT, projectName);
+                return true;
+            }
+        };
+
+        // ========== УПРАВЛЕНИЕ СЦЕНАМИ ==========
+        const SceneManager = {
+            createScene(projectName, sceneName) {
+                if (!sceneName.trim()) return false;
+                
+                if (!AppState.scenes[projectName]) {
+                    AppState.scenes[projectName] = [];
+                }
+                
+                AppState.scenes[projectName].push({
+                    name: sceneName.trim(),
+                    created: new Date().toISOString()
+                });
+                
+                ProjectManager.saveProjects();
+                return true;
+            },
+            
+            renameScene(projectName, sceneIndex, newName) {
+                if (!newName.trim()) return false;
+                
+                const scene = AppState.scenes[projectName][sceneIndex];
+                if (!scene) return false;
+                
+                scene.name = newName.trim();
+                ProjectManager.saveProjects();
+                return true;
+            },
+            
+            duplicateScene(projectName, sceneIndex) {
+                const scene = AppState.scenes[projectName][sceneIndex];
+                if (!scene) return false;
+                
+                let newName = `${scene.name} (копия)`;
+                let counter = 1;
+                
+                while (AppState.scenes[projectName].some(s => s.name === newName)) {
+                    newName = `${scene.name} (копия ${++counter})`;
+                }
+                
+                AppState.scenes[projectName].push({
+                    name: newName,
+                    created: new Date().toISOString()
+                });
+                
+                // Копируем блоки, если они есть
+                const sceneKey = `${projectName}_${sceneIndex}`;
+                const newSceneKey = `${projectName}_${AppState.scenes[projectName].length - 1}`;
+                
+                if (AppState.blocks[projectName] && AppState.blocks[projectName][sceneKey]) {
+                    if (!AppState.blocks[projectName][newSceneKey]) {
+                        AppState.blocks[projectName][newSceneKey] = {};
+                    }
+                    AppState.blocks[projectName][newSceneKey] = 
+                        JSON.parse(JSON.stringify(AppState.blocks[projectName][sceneKey]));
+                }
+                
+                ProjectManager.saveProjects();
+                return true;
+            },
+            
+            deleteScene(projectName, sceneIndex) {
+                if (!UI.showConfirm(`Удалить сцену "${AppState.scenes[projectName][sceneIndex].name}"?`)) {
+                    return false;
+                }
+                
+                AppState.scenes[projectName].splice(sceneIndex, 1);
+                
+                // Удаляем связанные блоки
+                if (AppState.blocks[projectName]) {
+                    delete AppState.blocks[projectName][`${projectName}_${sceneIndex}`];
+                    
+                    // Перенумеровываем оставшиеся блоки
+                    const newBlocks = {};
+                    Object.keys(AppState.blocks[projectName]).forEach(key => {
+                        const [projName, oldIndex] = key.split('_');
+                        if (parseInt(oldIndex) > sceneIndex) {
+                            const newIndex = parseInt(oldIndex) - 1;
+                            newBlocks[`${projName}_${newIndex}`] = AppState.blocks[projectName][key];
+                        } else if (parseInt(oldIndex) < sceneIndex) {
+                            newBlocks[key] = AppState.blocks[projectName][key];
+                        }
+                    });
+                    AppState.blocks[projectName] = newBlocks;
+                }
+                
+                ProjectManager.saveProjects();
+                return true;
+            }
+        };
+
+        // ========== BLOCKLY ИНТЕГРАЦИЯ ==========
+        const BlocklyManager = {
+            workspace: null,
+            
+            init(containerId) {
+                const blocklyDiv = document.getElementById(containerId);
+                this.workspace = Blockly.inject(blocklyDiv, {
+                    toolbox: this.getToolbox(),
+                    zoom: {
+                        controls: true,
+                        wheel: true,
+                        startScale: 1.0,
+                        maxScale: 3,
+                        minScale: 0.3,
+                        scaleSpeed: 1.2
+                    },
+                    trashcan: true,
+                    grid: {
+                        spacing: 20,
+                        length: 3,
+                        colour: '#ccc',
+                        snap: true
+                    }
+                });
+                
+                // Добавляем пользовательские блоки
+                this.addCustomBlocks();
+                
+                // Загружаем сохраненные блоки при открытии сцены
+                this.loadBlocksForScene();
+            },
+            
+            getToolbox() {
+                return {
+                    kind: 'categoryToolbox',
+                    contents: [
+                        {
+                            kind: 'category',
+                            name: 'Логика',
+                            colour: '#5b80a5',
+                            contents: [
+                                { kind: 'block', type: 'controls_if' },
+                                { kind: 'block', type: 'logic_compare' },
+                                { kind: 'block', type: 'logic_operation' },
+                                { kind: 'block', type: 'logic_negate' },
+                                { kind: 'block', type: 'logic_boolean' }
+                            ]
+                        },
+                        {
+                            kind: 'category',
+                            name: 'Циклы',
+                            colour: '#5ba55b',
+                            contents: [
+                                { kind: 'block', type: 'controls_repeat_ext' },
+                                { kind: 'block', type: 'controls_whileUntil' },
+                                { kind: 'block', type: 'controls_for' },
+                                { kind: 'block', type: 'controls_flow_statements' }
+                            ]
+                        },
+                        {
+                            kind: 'category',
+                            name: 'Математика',
+                            colour: '#5b67a5',
+                            contents: [
+                                { kind: 'block', type: 'math_number' },
+                                { kind: 'block', type: 'math_arithmetic' },
+                                { kind: 'block', type: 'math_single' },
+                                { kind: 'block', type: 'math_trig' },
+                                { kind: 'block', type: 'math_round' }
+                            ]
+                        },
+                        {
+                            kind: 'category',
+                            name: 'Текст',
+                            colour: '#a55b80',
+                            contents: [
+                                { kind: 'block', type: 'text' },
+                                { kind: 'block', type: 'text_join' },
+                                { kind: 'block', type: 'text_length' },
+                                { kind: 'block', type: 'text_print' }
+                            ]
+                        },
+                        {
+                            kind: 'category',
+                            name: 'Переменные',
+                            colour: '#a55b5b',
+                            custom: 'VARIABLE'
+                        },
+                        {
+                            kind: 'category',
+                            name: 'Функции',
+                            colour: '#995ba5',
+                            custom: 'PROCEDURE'
+                        }
+                    ]
+                };
+            },
+            
+            addCustomBlocks() {
+                // Блок для вывода в консоль
+                Blockly.Blocks['console_log'] = {
+                    init: function() {
+                        this.appendValueInput("MESSAGE")
+                            .setCheck("String")
+                            .appendField("вывести");
+                        this.setPreviousStatement(true, null);
+                        this.setNextStatement(true, null);
+                        this.setColour(160);
+                        this.setTooltip("Выводит текст в консоль");
+                    }
+                };
+                
+                Blockly.JavaScript['console_log'] = function(block) {
+                    const message = Blockly.JavaScript.valueToCode(block, 'MESSAGE',
+                        Blockly.JavaScript.ORDER_NONE) || "''";
+                    return `console.log(${message});\n`;
+                };
+            },
+            
+            saveBlocksForScene() {
+                if (!AppState.currentProject || AppState.currentScene === null) return;
+                
+                const sceneKey = `${AppState.currentProject}_${AppState.currentScene}`;
+                const xml = Blockly.Xml.workspaceToDom(this.workspace);
+                const xmlText = Blockly.Xml.domToText(xml);
+                
+                if (!AppState.blocks[AppState.currentProject]) {
+                    AppState.blocks[AppState.currentProject] = {};
+                }
+                
+                AppState.blocks[AppState.currentProject][sceneKey] = xmlText;
+                ProjectManager.saveProjects();
+                
+                UI.showAlert('Блоки сохранены!');
+            },
+            
+            loadBlocksForScene() {
+                if (!AppState.currentProject || AppState.currentScene === null) return;
+                
+                const sceneKey = `${AppState.currentProject}_${AppState.currentScene}`;
+                const savedBlocks = AppState.blocks[AppState.currentProject]?.[sceneKey];
+                
+                if (savedBlocks) {
+                    try {
+                        const xml = Blockly.Xml.textToDom(savedBlocks);
+                        Blockly.Xml.domToWorkspace(xml, this.workspace);
+                    } catch (error) {
+                        console.error('Ошибка загрузки блоков:', error);
+                    }
+                }
+            },
+            
+            clearWorkspace() {
+                this.workspace.clear();
+            },
+            
+            runCode() {
+                const code = Blockly.JavaScript.workspaceToCode(this.workspace);
+                
+                try {
+                    // Создаем безопасное выполнение кода
+                    const safeEval = new Function(code);
+                    safeEval();
+                    UI.showAlert('Код выполнен успешно! Проверьте консоль браузера.');
+                } catch (error) {
+                    UI.showAlert(`Ошибка выполнения: ${error.message}`);
+                }
+            },
+            
+            openScene(projectName, sceneIndex) {
+                AppState.currentProject = projectName;
+                AppState.currentScene = sceneIndex;
+                
+                // Обновляем заголовок
+                const sceneName = AppState.scenes[projectName][sceneIndex].name;
+                document.getElementById('blocklySceneTitle').textContent = 
+                    `Редактор: ${sceneName}`;
+                
+                // Очищаем и загружаем блоки
+                this.clearWorkspace();
+                this.loadBlocksForScene();
+                
+                UI.showScreen('blocklyEditorScreen');
+            }
+        };
+
+        // ========== РЕНДЕРИНГ ИНТЕРФЕЙСА ==========
+        const Renderer = {
+            renderProjects() {
+                const container = document.getElementById('projectsList');
+                container.innerHTML = '';
+                
+                if (AppState.projects.length === 0) {
+                    container.innerHTML = '<div class="empty-state">У вас пока нет проектов</div>';
+                    return;
+                }
+                
+                AppState.projects.forEach(project => {
+                    const element = document.createElement('div');
+                    element.className = 'project-item';
+                    element.innerHTML = `
+                        <div style="flex: 1;">${project.name}</div>
+                        <button class="menu-btn" data-project="${project.name}">⋮</button>
+                    `;
+                    
+                    // Клик по проекту
+                    element.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('menu-btn')) {
+                            AppState.currentProject = project.name;
+                            ProjectManager.openProject(project.name);
+                            Renderer.renderScenes();
+                            UI.showScreen('projectScenesScreen');
+                        }
+                    });
+                    
+                    // Меню проекта
+                    const menuBtn = element.querySelector('.menu-btn');
+                    menuBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.showProjectMenu(project.name, menuBtn);
+                    });
+                    
+                    container.appendChild(element);
+                });
+            },
+            
+            showProjectMenu(projectName, button) {
+                const menuContent = `
+                    <div class="menu-option" data-action="rename">Переименовать</div>
+                    <div class="menu-option" data-action="duplicate">Дублировать</div>
+                    <div class="menu-option delete" data-action="delete">Удалить</div>
+                `;
+                
+                const menu = UI.showMenu(menuContent, button, () => {
+                    // При закрытии меню ничего не делаем
+                });
+                
+                menu.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    if (!action) return;
+                    
+                    switch(action) {
+                        case 'rename':
+                            const newName = UI.showPrompt('Введите новое название проекта:', projectName);
+                            if (newName && newName.trim() && newName !== projectName) {
+                                if (ProjectManager.renameProject(projectName, newName.trim())) {
+                                    this.renderProjects();
+                                }
+                            }
+                            break;
+                            
+                        case 'duplicate':
+                            if (ProjectManager.duplicateProject(projectName)) {
+                                this.renderProjects();
+                            }
+                            break;
+                            
+                        case 'delete':
+                            if (ProjectManager.deleteProject(projectName)) {
+                                this.renderProjects();
+                                // Если удалили текущий проект, возвращаемся к списку
+                                if (AppState.currentProject === projectName) {
+                                    AppState.currentProject = null;
+                                    UI.showScreen('projectsScreen');
+                                }
+                            }
+                            break;
+                    }
+                    
+                    UI.closeMenu();
+                });
+            },
+            
+            renderScenes() {
+                const container = document.getElementById('scenesList');
+                const title = document.getElementById('projectTitle');
+                
+                title.textContent = `Сцены: ${AppState.currentProject}`;
+                container.innerHTML = '';
+                
+                const scenes = AppState.scenes[AppState.currentProject] || [];
+                
+                if (scenes.length === 0) {
+                    container.innerHTML = '<div class="empty-state">В этом проекте пока нет сцен</div>';
+                    return;
+                }
+                
+                scenes.forEach((scene, index) => {
+                    const element = document.createElement('div');
+                    element.className = 'scene-item';
+                    element.innerHTML = `
+                        <div style="flex: 1;">${scene.name}</div>
+                        <button class="menu-btn" data-index="${index}">⋮</button>
+                    `;
+                    
+                    // Клик по сцене - открываем Blockly редактор
+                    element.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('menu-btn')) {
+                            BlocklyManager.openScene(AppState.currentProject, index);
+                        }
+                    });
+                    
+                    // Меню сцены
+                    const menuBtn = element.querySelector('.menu-btn');
+                    menuBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.showSceneMenu(index, menuBtn);
+                    });
+                    
+                    container.appendChild(element);
+                });
+            },
+            
+            showSceneMenu(sceneIndex, button) {
+                const sceneName = AppState.scenes[AppState.currentProject][sceneIndex].name;
+                const menuContent = `
+                    <div class="menu-option" data-action="rename">Переименовать</div>
+                    <div class="menu-option" data-action="duplicate">Дублировать</div>
+                    <div class="menu-option delete" data-action="delete">Удалить</div>
+                `;
+                
+                const menu = UI.showMenu(menuContent, button);
+                
+                menu.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    if (!action) return;
+                    
+                    switch(action) {
+                        case 'rename':
+                            const newName = UI.showPrompt('Введите новое название сцены:', sceneName);
+                            if (newName && newName.trim() && newName !== sceneName) {
+                                if (SceneManager.renameScene(AppState.currentProject, sceneIndex, newName.trim())) {
+                                    this.renderScenes();
+                                }
+                            }
+                            break;
+                            
+                        case 'duplicate':
+                            if (SceneManager.duplicateScene(AppState.currentProject, sceneIndex)) {
+                                this.renderScenes();
+                            }
+                            break;
+                            
+                        case 'delete':
+                            if (SceneManager.deleteScene(AppState.currentProject, sceneIndex)) {
+                                this.renderScenes();
+                            }
+                            break;
+                    }
+                    
+                    UI.closeMenu();
+                });
+            }
+        };
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ==========
+        function initApp() {
+            // Загружаем данные
+            ProjectManager.loadProjects();
+            
+            // Инициализируем Blockly
+            BlocklyManager.init('blocklyContainer');
+            
+            // Рендерим проекты
+            Renderer.renderProjects();
+            
+            // Обработчики событий
+            setupEventListeners();
+            
+            // Проверяем последний открытый проект
+            if (AppState.currentProject) {
+                const project = AppState.projects.find(p => p.name === AppState.currentProject);
+                if (project) {
+                    AppState.currentProject = project.name;
+                    Renderer.renderScenes();
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            // Навигация
+            document.getElementById('projectsBtn').addEventListener('click', () => {
+                Renderer.renderProjects();
+                UI.showScreen('projectsScreen');
+            });
+            
+            document.getElementById('backFromProjects').addEventListener('click', () => {
+                UI.showScreen('mainScreen');
+            });
+            
+            document.getElementById('backFromCreate').addEventListener('click', () => {
+                document.getElementById('projectNameInput').value = '';
+                UI.showScreen('projectsScreen');
+            });
+            
+            document.getElementById('backFromScenes').addEventListener('click', () => {
+                UI.showScreen('projectsScreen');
+            });
+            
+            document.getElementById('backFromBlockly').addEventListener('click', () => {
+                UI.showScreen('projectScenesScreen');
+            });
+            
+            // Создание проекта
+            document.getElementById('addProjectBtn').addEventListener('click', () => {
+                document.getElementById('projectNameInput').value = '';
+                UI.showScreen('createProjectScreen');
+            });
+            
+            document.getElementById('cancelBtn').addEventListener('click', () => {
+                document.getElementById('projectNameInput').value = '';
+                UI.showScreen('projectsScreen');
+            });
+            
+            document.getElementById('okBtn').addEventListener('click', () => {
+                const projectName = document.getElementById('projectNameInput').value.trim();
+                if (ProjectManager.createProject(projectName)) {
+                    document.getElementById('projectNameInput').value = '';
+                    Renderer.renderProjects();
+                    UI.showScreen('projectsScreen');
+                }
+            });
+            
+            // Создание сцены
+            document.getElementById('addSceneBtn').addEventListener('click', () => {
+                const sceneName = UI.showPrompt('Введите название сцены:');
+                if (sceneName && sceneName.trim()) {
+                    if (SceneManager.createScene(AppState.currentProject, sceneName.trim())) {
+                        Renderer.renderScenes();
+                    }
+                }
+            });
+            
+            // Blockly действия
+            document.getElementById('saveBlocksBtn').addEventListener('click', () => {
+                BlocklyManager.saveBlocksForScene();
+            });
+            
+            document.getElementById('runBlocksBtn').addEventListener('click', () => {
+                BlocklyManager.runCode();
+            });
+            
+            // Продолжить проект
+            document.getElementById('continueBtn').addEventListener('click', () => {
+                if (AppState.currentProject) {
+                    const project = AppState.projects.find(p => p.name === AppState.currentProject);
+                    if (project) {
+                        ProjectManager.openProject(project.name);
+                        Renderer.renderScenes();
+                        UI.showScreen('projectScenesScreen');
+                    }
+                } else {
+                    UI.showAlert('У вас нет активного проекта. Создайте новый или откройте существующий.');
+                }
+            });
+            
+            // Быстрое создание проекта по Enter
+            document.getElementById('projectNameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('okBtn').click();
+                }
+            });
+        }
+
+        // Запуск приложения при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
